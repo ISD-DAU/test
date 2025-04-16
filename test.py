@@ -8,14 +8,18 @@ df = pd.DataFrame({
     'City': ['New York', 'Los Angeles', 'New York', 'Chicago']
 })
 
-# Filter by City
-selected_city = st.selectbox("Filter by city", options=["All"] + df["City"].unique().tolist())
+# Multiselect for filtering by city
+selected_cities = st.multiselect(
+    "Filter by city (you can select multiple)", 
+    options=df["City"].unique().tolist(),
+    default=df["City"].unique().tolist()  # Show all by default
+)
 
-# Apply filter
-if selected_city != "All":
-    filtered_df = df[df["City"] == selected_city]
+# Filter DataFrame based on selection
+if selected_cities:
+    filtered_df = df[df["City"].isin(selected_cities)]
 else:
-    filtered_df = df
+    filtered_df = pd.DataFrame(columns=df.columns)  # Empty DataFrame if none selected
 
-# Show the filtered table
+# Show filtered DataFrame
 st.dataframe(filtered_df)
