@@ -59,13 +59,13 @@ def generate_sensors_df():
     }
     return pd.DataFrame(data)
 
-# Dictionary of datasets and filter columns
+# Dictionary of datasets
 datasets = {
-    "City Residents": (generate_city_df, "City"),
-    "Middle School Students": (generate_school_df, "Grade"),
-    "Tech Companies": (generate_company_df, "Industry"),
-    "Library Books": (generate_books_df, "Genre"),
-    "Environmental Sensors": (generate_sensors_df, "Location"),
+    "City Residents": generate_city_df,
+    "Middle School Students": generate_school_df,
+    "Tech Companies": generate_company_df,
+    "Library Books": generate_books_df,
+    "Environmental Sensors": generate_sensors_df,
 }
 
 # Multiselect for dataset selection
@@ -75,19 +75,27 @@ selected_dataset_names = st.multiselect(
     default=list(datasets.keys())  # Show all by default
 )
 
-# Display selected datasets with filters
+# Display selected datasets with column picker and filter
 for dataset_name in selected_dataset_names:
     st.subheader(f"{dataset_name}")
-    df_func, filter_col = datasets[dataset_name]
-    df = df_func()
-
-    options = sorted(df[filter_col].unique())
-    selected_filters = st.multiselect(
-        f"Filter '{dataset_name}' by {filter_col}",
+    df = datasets[dataset_name]()
+    
+    # Choose column to filter by
+    selected_col = st.selectbox(
+        f"Select a column to filter {dataset_name} by",
+        options=df.columns.tolist(),
+        key=f"{dataset_name}_column"
+    )
+    
+    # Multiselect filter values
+    options = sorted(df[selected_col].unique())
+    selected_values = st.multiselect(
+        f"Select values in '{selected_col}' to include",
         options=options,
         default=options,
-        key=f"{dataset_name}_filter"
+        key=f"{dataset_name}_{selected_col}_values"
     )
-
-    filtered_df = df[df[filter_col].isin(selected_filters)]
+    
+    # Apply filter
+    filtered_df = df[df[selected_col].isin(selected_values)]
     st.dataframe(filtered_df)
