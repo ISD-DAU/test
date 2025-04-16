@@ -80,4 +80,5 @@ selected_filters = st.multiselect(f"Filter by {filter_col}", options=options, de
 filtered_df = df[df[filter_col].isin(selected_filters)]
 
 # Show results
-st.markdown(f"### Filtered Data: {dataset
+st.markdown(f"### Filtered Data: {dataset_name}")
+st.dataframe(filtered_df)
